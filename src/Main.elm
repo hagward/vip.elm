@@ -62,7 +62,11 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-  [ audio [ src model.selectedUrl, controls True ] []
+  [ audio
+    [ src model.selectedUrl
+    , controls True
+    , autoplay True
+    ] []
   , ul [] (rows model)
   ]
 
