@@ -49,7 +49,6 @@ view : Model -> Html Msg
 view model =
   div [] (rows model)
 
-rows : Model -> List (Html msg)
 rows model =
   model.tracks
     |> List.indexedMap Tuple.pair
@@ -58,6 +57,6 @@ rows model =
 
 row (i, track, selected) =
   if selected == i then
-    div [ style "color" "green" ] [ text (track.creator ++ " - " ++ track.title) ]
+    div [ style "color" "green", onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
   else
-    div [] [ text (track.creator ++ " - " ++ track.title) ]
+    div [ onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
