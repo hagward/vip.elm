@@ -1,3 +1,38 @@
+:root {
+  --bg-color: rgb(24,60,99);
+  --fg-color: rgb(229,135,74);
+  --border-color: rgb(0,51,102);
+  --hover-color: rgb(70,135,239);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+  font: .7rem Arial, Helvetica, sans-serif;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  padding: .4rem;
+}
+
+li:hover {
+  background-color: var(--hover-color);
+  color: var(--border-color);
+}
+
 .selected {
-  background-color: rgb(229,135,74);
+  background-color: var(--fg-color);
+  color: var(--bg-color);
 }

@@ -63,7 +63,7 @@ view : Model -> Html Msg
 view model =
   div []
   [ audio [ src model.selectedUrl, controls True ] []
-  , div [] (rows model)
+  , ul [] (rows model)
   ]
 
 rows model =
@@ -73,7 +73,7 @@ rows model =
     |> List.map row
 
 row (i, track, selectedIndex) =
-  div
+  li
     [ classList [ ("selected", selectedIndex == i) ]
     , onClick (SelectTrack i track.location)
     ]
