@@ -27,11 +27,13 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model 0 [ (Track "creator" "title" "location"), (Track "creator2" "title2" "location") ]
-  , Cmd.none
+  ( Model 0 []
+  , getPlaylist
   )
 
-type Msg = SelectTrack Int
+type Msg
+  = SelectTrack Int
+  | PlaylistReceived (Result Http.Error (List Track))
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -40,6 +42,17 @@ update msg model =
       ( { model | selected = track }
       , Cmd.none
       )
+    PlaylistReceived result ->
+      case result of
+        Ok tracks ->
+          ( { model | tracks = tracks }
+          , Cmd.none
+          )
+        
+        Err _ ->
+          ( model
+          , Cmd.none
+          )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -60,3 +73,15 @@ row (i, track, selected) =
     div [ style "color" "green", onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
   else
     div [ onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
+
+getPlaylist =
+  Http.send PlaylistReceived (Http.get "http://localhost:12345/roster.json" playlistDecoder)
+
+playlistDecoder =
+  Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.list trackDecoder)))
+
+trackDecoder =
+  Decode.map3 Track
+    (Decode.field "creator" Decode.string)
+    (Decode.field "title" Decode.string)
+    (Decode.field "location" Decode.string)
