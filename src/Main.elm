@@ -73,13 +73,14 @@ rows model =
     |> List.map row
 
 row (i, track, selectedIndex) =
-  if selectedIndex == i then
-    div [ style "color" "green", onClick (SelectTrack i track.location) ] [ text (track.creator ++ " - " ++ track.title) ]
-  else
-    div [ onClick (SelectTrack i track.location) ] [ text (track.creator ++ " - " ++ track.title) ]
+  div
+    [ classList [ ("selected", selectedIndex == i) ]
+    , onClick (SelectTrack i track.location)
+    ]
+    [ text (track.creator ++ " - " ++ track.title) ]
 
 getPlaylist =
-  Http.send PlaylistReceived (Http.get "http://localhost:12345/roster-mellow.json" playlistDecoder)
+  Http.send PlaylistReceived (Http.get "/roster-mellow.json" playlistDecoder)
 
 playlistDecoder =
   Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.list trackDecoder)))
