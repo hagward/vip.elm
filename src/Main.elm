@@ -21,25 +21,26 @@ type alias Track =
   }
 
 type alias Model =
-  { selected : Int
+  { selectedIndex : Int
+  , selectedUrl : String
   , tracks : List Track
   }
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model 0 []
+  ( Model 0 "" []
   , getPlaylist
   )
 
 type Msg
-  = SelectTrack Int
+  = SelectTrack Int String
   | PlaylistReceived (Result Http.Error (List Track))
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    SelectTrack track ->
-      ( { model | selected = track }
+    SelectTrack index url ->
+      ( { model | selectedIndex = index, selectedUrl = url }
       , Cmd.none
       )
     PlaylistReceived result ->
@@ -48,7 +49,7 @@ update msg model =
           ( { model | tracks = tracks }
           , Cmd.none
           )
-        
+
         Err _ ->
           ( model
           , Cmd.none
@@ -60,22 +61,25 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-  div [] (rows model)
+  div []
+  [ audio [ src model.selectedUrl, controls True ] []
+  , div [] (rows model)
+  ]
 
 rows model =
   model.tracks
     |> List.indexedMap Tuple.pair
-    |> List.map (\(i, t) -> (i, t, model.selected))
+    |> List.map (\(i, t) -> (i, t, model.selectedIndex))
     |> List.map row
 
-row (i, track, selected) =
-  if selected == i then
-    div [ style "color" "green", onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
+row (i, track, selectedIndex) =
+  if selectedIndex == i then
+    div [ style "color" "green", onClick (SelectTrack i track.location) ] [ text (track.creator ++ " - " ++ track.title) ]
   else
-    div [ onClick (SelectTrack i) ] [ text (track.creator ++ " - " ++ track.title) ]
+    div [ onClick (SelectTrack i track.location) ] [ text (track.creator ++ " - " ++ track.title) ]
 
 getPlaylist =
-  Http.send PlaylistReceived (Http.get "http://localhost:12345/roster.json" playlistDecoder)
+  Http.send PlaylistReceived (Http.get "http://localhost:12345/roster-mellow.json" playlistDecoder)
 
 playlistDecoder =
   Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.list trackDecoder)))
