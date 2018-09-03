@@ -1,3 +1,5 @@
+port module Main exposing (..)
+
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -21,28 +23,45 @@ type alias Track =
   }
 
 type alias Model =
-  { selectedIndex : Int
+  { currentTime : Float
+  , duration : Float
+  , isPlaying : Bool
+  , selectedIndex : Int
   , selectedUrl : String
   , tracks : List Track
   }
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model 0 "" []
+  ( Model 0 100 False 0 "" []
   , getPlaylist
   )
 
 type Msg
-  = SelectTrack Int String
+  = DurationChange Float
+  | Play
   | PlaylistReceived (Result Http.Error (List Track))
+  | Seek String
+  | SelectTrack Int String
+
+port durationChange : (Float -> msg) -> Sub msg
+
+port seek : String -> Cmd msg
+port play : Bool -> Cmd msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    SelectTrack index url ->
-      ( { model | selectedIndex = index, selectedUrl = url }
+    DurationChange value ->
+      ( { model | duration = value }
       , Cmd.none
       )
+
+    Play ->
+      ( { model | isPlaying = not model.isPlaying }
+      , play (not model.isPlaying)
+      )
+
     PlaylistReceived result ->
       case result of
         Ok tracks ->
@@ -55,9 +74,19 @@ update msg model =
           , Cmd.none
           )
 
+    Seek value ->
+      ( { model | currentTime = (Maybe.withDefault 0 (String.toFloat value)) }
+      , seek value
+      )
+
+    SelectTrack index url ->
+      ( { model | selectedIndex = index, selectedUrl = url }
+      , Cmd.none
+      )
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+  durationChange DurationChange
 
 view : Model -> Html Msg
 view model =
@@ -66,7 +95,17 @@ view model =
     [ src model.selectedUrl
     , controls True
     , autoplay True
+    , id "audio"
     ] []
+  , div []
+    [ button [ onClick Play ] [ text (if model.isPlaying then "❚❚" else "►") ]
+    , input
+      [ type_ "range"
+      , Html.Attributes.max (String.fromFloat model.duration)
+      , value (String.fromFloat model.currentTime)
+      , onInput Seek
+      ] []
+    ]
   , ul [] (rows model)
   ]
 

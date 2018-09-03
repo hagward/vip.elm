@@ -11,9 +11,13 @@
 <body>
   <div id="elm-root"></div>
   <script>
-    Elm.Main.init({
+    const app = Elm.Main.init({
       node: document.getElementById('elm-root')
     })
+    const audio = document.getElementById('audio')
+    app.ports.seek.subscribe(time => audio.currentTime = time)
+    app.ports.play.subscribe(play => play ? audio.play().then() : audio.pause())
+    audio.addEventListener('durationchange', event => app.ports.durationChange.send(event.target.duration))
   </script>
 </body>
 </html>
