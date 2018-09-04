@@ -1,11 +1,11 @@
 :root {
-  --bg-color: rgb(24,60,99);
-  --fg-color: rgb(229,135,74);
-  --border-color: rgb(0,51,102);
-  --hover-color: rgb(70,135,239);
-  --gradient-light-color: rgb(61,99,137);
-  --gradient-dark-color: rgb(3,41,79);
-  --text-hover-color: rgb(78,145,255);
+  --bg-color: #183c63;
+  --fg-color: #e5874a;
+  --border-color: #003366;
+  --hover-color: #4687ef;
+  --gradient-light-color: #3d6389;
+  --gradient-dark-color: #03294f;
+  --text-hover-color: #4e91ff;
 }
 
 html, body {
