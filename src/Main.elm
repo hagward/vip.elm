@@ -97,7 +97,7 @@ view model =
     , autoplay True
     , id "audio"
     ] []
-  , div []
+  , div [ class "player-controls" ]
     [ button [ onClick Play ] [ text (if model.isPlaying then "❚❚" else "►") ]
     , input
       [ type_ "range"
