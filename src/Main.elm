@@ -44,9 +44,11 @@ type Msg
   | PlaylistReceived (Result Http.Error (List Track))
   | Seek String
   | SelectTrack Int String
+  | TimeUpdate Float
 
 port durationChange : (Float -> msg) -> Sub msg
 port play : (Bool -> msg) -> Sub msg
+port timeUpdate : (Float -> msg) -> Sub msg
 
 port seek : String -> Cmd msg
 port playPause : Bool -> Cmd msg
@@ -91,11 +93,17 @@ update msg model =
       , Cmd.none
       )
 
+    TimeUpdate value ->
+      ( { model | currentTime = value }
+      , Cmd.none
+      )
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ durationChange DurationChange
     , play Play
+    , timeUpdate TimeUpdate
     ]
 
 view : Model -> Html Msg

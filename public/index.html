@@ -19,6 +19,7 @@
     app.ports.playPause.subscribe(play => play ? audio.play().then() : audio.pause())
     audio.addEventListener('durationchange', event => app.ports.durationChange.send(event.target.duration))
     audio.addEventListener('play', event => app.ports.play.send(true))
+    audio.addEventListener('timeupdate', event => app.ports.timeUpdate.send(event.target.currentTime))
   </script>
 </body>
 </html>
