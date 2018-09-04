@@ -1,5 +1,6 @@
 port module Main exposing (..)
 
+import Array
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -39,6 +40,7 @@ init _ =
 
 type Msg
   = DurationChange Float
+  | Ended Bool
   | Play Bool
   | PlayPause
   | PlaylistReceived (Result Http.Error (List Track))
@@ -47,6 +49,7 @@ type Msg
   | TimeUpdate Float
 
 port durationChange : (Float -> msg) -> Sub msg
+port ended : (Bool -> msg) -> Sub msg
 port play : (Bool -> msg) -> Sub msg
 port timeUpdate : (Float -> msg) -> Sub msg
 
@@ -60,6 +63,14 @@ update msg model =
       ( { model | duration = value }
       , Cmd.none
       )
+
+    Ended _ ->
+      let newIndex = model.selectedIndex + 1 in
+      let allTracks = Array.fromList model.tracks in
+      let newTrack = Array.get newIndex allTracks in
+        ( { model | selectedIndex = newIndex, selectedUrl = (Maybe.withDefault "" (Maybe.map (\t -> t.location) newTrack)) }
+        , Cmd.none
+        )
 
     Play _ ->
       ( { model | isPlaying = True }
@@ -102,6 +113,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ durationChange DurationChange
+    , ended Ended
     , play Play
     , timeUpdate TimeUpdate
     ]
@@ -111,7 +123,7 @@ view model =
   div []
   [ audio
     [ src model.selectedUrl
-    , controls True
+    , controls False
     , autoplay True
     , id "audio"
     ] []
