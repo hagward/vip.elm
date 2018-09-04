@@ -39,15 +39,17 @@ init _ =
 
 type Msg
   = DurationChange Float
-  | Play
+  | Play Bool
+  | PlayPause
   | PlaylistReceived (Result Http.Error (List Track))
   | Seek String
   | SelectTrack Int String
 
 port durationChange : (Float -> msg) -> Sub msg
+port play : (Bool -> msg) -> Sub msg
 
 port seek : String -> Cmd msg
-port play : Bool -> Cmd msg
+port playPause : Bool -> Cmd msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -57,9 +59,14 @@ update msg model =
       , Cmd.none
       )
 
-    Play ->
+    Play _ ->
+      ( { model | isPlaying = True }
+      , Cmd.none
+      )
+
+    PlayPause ->
       ( { model | isPlaying = not model.isPlaying }
-      , play (not model.isPlaying)
+      , playPause (not model.isPlaying)
       )
 
     PlaylistReceived result ->
@@ -86,7 +93,10 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  durationChange DurationChange
+  Sub.batch
+    [ durationChange DurationChange
+    , play Play
+    ]
 
 view : Model -> Html Msg
 view model =
@@ -98,7 +108,7 @@ view model =
     , id "audio"
     ] []
   , div [ class "player-controls" ]
-    [ button [ onClick Play ] [ text (if model.isPlaying then "❚❚" else "►") ]
+    [ button [ onClick PlayPause ] [ text (if model.isPlaying then "❚❚" else "►") ]
     , input
       [ type_ "range"
       , Html.Attributes.max (String.fromFloat model.duration)
