@@ -65,9 +65,8 @@ update msg model =
       )
 
     Ended _ ->
-      let newIndex = model.selectedIndex + 1 in
-      let newTrack = Array.get newIndex model.tracks in
-        ( { model | selectedIndex = newIndex, selectedUrl = (Maybe.withDefault "" (Maybe.map (\t -> t.location) newTrack)) }
+      let (newIndex, newUrl) = getNextTrack model in
+        ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
         , Cmd.none
         )
 
@@ -107,6 +106,12 @@ update msg model =
       ( { model | currentTime = value }
       , Cmd.none
       )
+
+getNextTrack model =
+  let newIndex = model.selectedIndex + 1 in
+  let newTrack = Array.get newIndex model.tracks in
+  let newUrl = Maybe.withDefault "" (Maybe.map (\t -> t.location) newTrack) in
+    (newIndex, newUrl)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
