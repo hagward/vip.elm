@@ -29,12 +29,12 @@ type alias Model =
   , isPlaying : Bool
   , selectedIndex : Int
   , selectedUrl : String
-  , tracks : List Track
+  , tracks : Array.Array Track
   }
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model 0 100 False 0 "" []
+  ( Model 0 100 False 0 "" (Array.fromList [])
   , getPlaylist
   )
 
@@ -43,7 +43,7 @@ type Msg
   | Ended Bool
   | Play Bool
   | PlayPause
-  | PlaylistReceived (Result Http.Error (List Track))
+  | PlaylistReceived (Result Http.Error (Array.Array Track))
   | Seek String
   | SelectTrack Int String
   | TimeUpdate Float
@@ -66,8 +66,7 @@ update msg model =
 
     Ended _ ->
       let newIndex = model.selectedIndex + 1 in
-      let allTracks = Array.fromList model.tracks in
-      let newTrack = Array.get newIndex allTracks in
+      let newTrack = Array.get newIndex model.tracks in
         ( { model | selectedIndex = newIndex, selectedUrl = (Maybe.withDefault "" (Maybe.map (\t -> t.location) newTrack)) }
         , Cmd.none
         )
@@ -136,14 +135,11 @@ view model =
       , onInput Seek
       ] []
     ]
-  , ul [] (rows model)
+  , ul [] (Array.toList (rows model))
   ]
 
 rows model =
-  model.tracks
-    |> List.indexedMap Tuple.pair
-    |> List.map (\(i, t) -> (i, t, model.selectedIndex))
-    |> List.map row
+  Array.map row (Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks)
 
 row (i, track, selectedIndex) =
   li
@@ -156,7 +152,7 @@ getPlaylist =
   Http.send PlaylistReceived (Http.get "/roster-mellow.json" playlistDecoder)
 
 playlistDecoder =
-  Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.list trackDecoder)))
+  Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.array trackDecoder)))
 
 trackDecoder =
   Decode.map3 Track
