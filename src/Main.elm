@@ -158,15 +158,26 @@ view model =
     [ button [ onClick PlayPause ] [ text (if model.isPlaying then "❚❚" else "►") ]
     , button [ onClick PlayPrevious ] [ text "<" ]
     , button [ onClick PlayNext ] [ text ">" ]
+    , div [ class "timer" ] [ text (formattedTime model.currentTime) ]
     , input
       [ type_ "range"
       , Html.Attributes.max (String.fromFloat model.duration)
-      , value (String.fromFloat model.currentTime)
+      , value (String.fromInt (floor model.currentTime))
       , onInput Seek
       ] []
     ]
   , ul [] (Array.toList (rows model))
   ]
+
+formattedTime : Float -> String
+formattedTime time =
+  let minutes = (floor (time / 60)) |> String.fromInt |> padWithZero in
+  let seconds = (modBy 60 (floor time)) |> String.fromInt |> padWithZero in
+    minutes ++ ":" ++ seconds
+
+padWithZero : String -> String
+padWithZero s =
+  if (String.length s) == 1 then "0" ++ s else s
 
 rows model =
   Array.map row (Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks)

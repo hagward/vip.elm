@@ -55,9 +55,14 @@ li:hover {
 }
 
 .player-controls {
+  align-items: center;
   background: linear-gradient(var(--gradient-light-color), var(--gradient-dark-color));
   border: 1px solid var(--border-color);
   display: flex;
+}
+
+.timer {
+  padding: 0 6px 0 3px;
 }
 
 input[type=range] {
