@@ -42,7 +42,9 @@ type Msg
   = DurationChange Float
   | Ended Bool
   | Play Bool
+  | PlayNext
   | PlayPause
+  | PlayPrevious
   | PlaylistReceived (Result Http.Error (Array.Array Track))
   | Seek String
   | SelectTrack Int String
@@ -75,10 +77,22 @@ update msg model =
       , Cmd.none
       )
 
+    PlayNext ->
+      let (newIndex, newUrl) = getNextTrack model in
+        ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
+        , Cmd.none
+        )
+
     PlayPause ->
       ( { model | isPlaying = not model.isPlaying }
       , playPause (not model.isPlaying)
       )
+
+    PlayPrevious ->
+      let (newIndex, newUrl) = getPreviousTrack model in
+        ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
+        , Cmd.none
+        )
 
     PlaylistReceived result ->
       case result of
@@ -108,10 +122,19 @@ update msg model =
       )
 
 getNextTrack model =
-  let newIndex = model.selectedIndex + 1 in
-  let newTrack = Array.get newIndex model.tracks in
-  let newUrl = Maybe.withDefault "" (Maybe.map (\t -> t.location) newTrack) in
+  let newIndex = modBy (Array.length model.tracks) (model.selectedIndex + 1) in
+  let newUrl = getTrackUrl model newIndex in
     (newIndex, newUrl)
+
+getPreviousTrack model =
+  let newIndex = modBy (Array.length model.tracks) (model.selectedIndex - 1) in
+  let newUrl = getTrackUrl model newIndex in
+    (newIndex, newUrl)
+
+getTrackUrl model index =
+  Array.get index model.tracks
+    |> Maybe.map (\t -> t.location)
+    |> Maybe.withDefault ""
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -133,6 +156,8 @@ view model =
     ] []
   , div [ class "player-controls" ]
     [ button [ onClick PlayPause ] [ text (if model.isPlaying then "❚❚" else "►") ]
+    , button [ onClick PlayPrevious ] [ text "<" ]
+    , button [ onClick PlayNext ] [ text ">" ]
     , input
       [ type_ "range"
       , Html.Attributes.max (String.fromFloat model.duration)
