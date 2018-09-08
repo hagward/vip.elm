@@ -165,6 +165,7 @@ view model =
       , value (String.fromInt (floor model.currentTime))
       , onInput Seek
       ] []
+    , div [ class "timer" ] [ text (formattedTime model.duration) ]
     ]
   , ul [] (Array.toList (rows model))
   ]
