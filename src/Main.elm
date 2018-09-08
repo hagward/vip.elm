@@ -10,6 +10,8 @@ import Json.Decode as Decode
 import Random
 import Url.Builder as Url
 
+-- MAIN
+
 main =
   Browser.element
     { init = init
@@ -17,6 +19,8 @@ main =
     , subscriptions = subscriptions
     , view = view
     }
+
+-- MODEL
 
 type alias Track =
   { creator : String
@@ -38,6 +42,8 @@ init _ =
   ( Model 0 100 False 0 "" (Array.fromList [])
   , getPlaylist
   )
+
+-- UPDATE
 
 type Msg
   = DurationChange Float
@@ -143,6 +149,8 @@ getTrackUrl model index =
     |> Maybe.map (\t -> t.location)
     |> Maybe.withDefault ""
 
+-- SUBSCRIPTIONS
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
@@ -151,6 +159,8 @@ subscriptions model =
     , play Play
     , timeUpdate TimeUpdate
     ]
+
+-- VIEW
 
 view : Model -> Html Msg
 view model =
@@ -196,6 +206,8 @@ row (i, track, selectedIndex) =
     , onClick (SelectTrack i track.location)
     ]
     [ text (track.creator ++ " - " ++ track.title) ]
+
+-- HTTP
 
 getPlaylist =
   Http.send PlaylistReceived (Http.get "/roster-mellow.json" playlistDecoder)
