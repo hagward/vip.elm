@@ -6,8 +6,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode as Decode
 import Random
+import Regex
 import Url.Builder as Url
 
 -- MAIN
@@ -49,7 +49,7 @@ type Msg
   = DurationChange Float
   | Ended Bool
   | Play Bool
-  | PlaylistReceived (Result Http.Error (Array.Array Track))
+  | PlaylistReceived (Result Http.Error String)
   | PlayNext
   | PlayPause
   | PlayPrevious
@@ -86,10 +86,11 @@ update msg model =
 
     PlaylistReceived result ->
       case result of
-        Ok tracks ->
-          ( { model | tracks = tracks }
-          , Cmd.none
-          )
+        Ok xml ->
+          let tracks = xmlToTracks xml in
+            ( { model | tracks = tracks }
+            , Cmd.none
+            )
 
         Err _ ->
           ( model
@@ -151,6 +152,29 @@ getTrackUrl model index =
   Array.get index model.tracks
     |> Maybe.map (\t -> t.location)
     |> Maybe.withDefault ""
+
+xmlToTracks : String -> Array.Array Track
+xmlToTracks s =
+  findTracks s
+    |> List.map matchToTrack
+    |> Array.fromList
+
+findTracks : String -> List Regex.Match
+findTracks s =
+  Regex.find createTrackRegex s
+
+createTrackRegex : Regex.Regex
+createTrackRegex =
+  Maybe.withDefault Regex.never <|
+    Regex.fromString "<creator>(.+?)</creator>\\s+<title>(.+?)</title>\\s+<location>(.+?)</location>"
+
+matchToTrack : Regex.Match -> Track
+matchToTrack match =
+  let array = Array.fromList match.submatches in
+    Track
+      (Array.get 0 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
+      (Array.get 1 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
+      (Array.get 2 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
 
 -- SUBSCRIPTIONS
 
@@ -218,15 +242,8 @@ row (i, track, selectedIndex) =
 
 getPlaylist : Cmd Msg
 getPlaylist =
-  Http.send PlaylistReceived (Http.get "/roster-mellow.json" playlistDecoder)
+  Http.send PlaylistReceived (Http.getString (toVipAersiaUrl "roster.xml"))
 
-playlistDecoder : Decode.Decoder (Array.Array Track)
-playlistDecoder =
-  Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.array trackDecoder)))
-
-trackDecoder : Decode.Decoder Track
-trackDecoder =
-  Decode.map3 Track
-    (Decode.field "creator" Decode.string)
-    (Decode.field "title" Decode.string)
-    (Decode.field "location" Decode.string)
+toVipAersiaUrl : String -> String
+toVipAersiaUrl playlist =
+  Url.crossOrigin "http://vip.aersia.net" [ playlist ] []
