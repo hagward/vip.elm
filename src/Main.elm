@@ -202,7 +202,9 @@ padWithZero s =
 
 rows : Model -> List (Html Msg)
 rows model =
-  Array.toList (Array.map row (Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks))
+  Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks
+  |> Array.map row
+  |> Array.toList
 
 row : (Int, Track, Int) -> Html Msg
 row (i, track, selectedIndex) =
