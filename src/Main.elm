@@ -134,16 +134,19 @@ update msg model =
       , Cmd.none
       )
 
+getNextTrack : Model -> (Int, String)
 getNextTrack model =
   let newIndex = modBy (Array.length model.tracks) (model.selectedIndex + 1) in
   let newUrl = getTrackUrl model newIndex in
     (newIndex, newUrl)
 
+getPreviousTrack : Model -> (Int, String)
 getPreviousTrack model =
   let newIndex = modBy (Array.length model.tracks) (model.selectedIndex - 1) in
   let newUrl = getTrackUrl model newIndex in
     (newIndex, newUrl)
 
+getTrackUrl : Model -> Int -> String
 getTrackUrl model index =
   Array.get index model.tracks
     |> Maybe.map (\t -> t.location)
@@ -184,7 +187,7 @@ view model =
       ] []
     , div [ class "timer" ] [ text (formattedTime model.duration) ]
     ]
-  , ul [] (Array.toList (rows model))
+  , ul [] (rows model)
   ]
 
 formattedTime : Float -> String
@@ -197,9 +200,11 @@ padWithZero : String -> String
 padWithZero s =
   if (String.length s) == 1 then "0" ++ s else s
 
+rows : Model -> List (Html Msg)
 rows model =
-  Array.map row (Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks)
+  Array.toList (Array.map row (Array.indexedMap (\i t -> (i, t, model.selectedIndex)) model.tracks))
 
+row : (Int, Track, Int) -> Html Msg
 row (i, track, selectedIndex) =
   li
     [ classList [ ("selected", selectedIndex == i) ]
@@ -209,12 +214,15 @@ row (i, track, selectedIndex) =
 
 -- HTTP
 
+getPlaylist : Cmd Msg
 getPlaylist =
   Http.send PlaylistReceived (Http.get "/roster-mellow.json" playlistDecoder)
 
+playlistDecoder : Decode.Decoder (Array.Array Track)
 playlistDecoder =
   Decode.field "playlist" (Decode.field "trackList" (Decode.field "track" (Decode.array trackDecoder)))
 
+trackDecoder : Decode.Decoder Track
 trackDecoder =
   Decode.map3 Track
     (Decode.field "creator" Decode.string)
