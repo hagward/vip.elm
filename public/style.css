@@ -59,6 +59,7 @@ li:hover {
   background: linear-gradient(var(--gradient-light-color), var(--gradient-dark-color));
   border: 1px solid var(--border-color);
   display: flex;
+  font-size: .6rem;
   height: 20px;
   position: fixed;
   width: 100%;
