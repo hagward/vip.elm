@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode
+import Random
 import Url.Builder as Url
 
 main =
@@ -42,10 +43,11 @@ type Msg
   = DurationChange Float
   | Ended Bool
   | Play Bool
+  | PlaylistReceived (Result Http.Error (Array.Array Track))
   | PlayNext
   | PlayPause
   | PlayPrevious
-  | PlaylistReceived (Result Http.Error (Array.Array Track))
+  | PlayRandom Int
   | Seek String
   | SelectTrack Int String
   | TimeUpdate Float
@@ -67,15 +69,26 @@ update msg model =
       )
 
     Ended _ ->
-      let (newIndex, newUrl) = getNextTrack model in
-        ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
-        , Cmd.none
-        )
+      ( model
+      , Random.generate PlayRandom (Random.int 0 ((Array.length model.tracks) - 1))
+      )
 
     Play _ ->
       ( { model | isPlaying = True }
       , Cmd.none
       )
+
+    PlaylistReceived result ->
+      case result of
+        Ok tracks ->
+          ( { model | tracks = tracks }
+          , Cmd.none
+          )
+
+        Err _ ->
+          ( model
+          , Cmd.none
+          )
 
     PlayNext ->
       let (newIndex, newUrl) = getNextTrack model in
@@ -94,17 +107,11 @@ update msg model =
         , Cmd.none
         )
 
-    PlaylistReceived result ->
-      case result of
-        Ok tracks ->
-          ( { model | tracks = tracks }
-          , Cmd.none
-          )
-
-        Err _ ->
-          ( model
-          , Cmd.none
-          )
+    PlayRandom index ->
+      let trackUrl = getTrackUrl model index in
+        ( { model | selectedIndex = index, selectedUrl = trackUrl }
+        , Cmd.none
+        )
 
     Seek value ->
       ( { model | currentTime = (Maybe.withDefault 0 (String.toFloat value)) }
