@@ -63,6 +63,7 @@ port ended : (Bool -> msg) -> Sub msg
 port play : (Bool -> msg) -> Sub msg
 port timeUpdate : (Float -> msg) -> Sub msg
 
+port scrollToTrack : () -> Cmd msg
 port seek : String -> Cmd msg
 port playPause : Bool -> Cmd msg
 
@@ -100,7 +101,7 @@ update msg model =
     PlayNext ->
       let (newIndex, newUrl) = getNextTrack model in
         ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
-        , Cmd.none
+        , scrollToTrack ()
         )
 
     PlayPause ->
@@ -111,13 +112,13 @@ update msg model =
     PlayPrevious ->
       let (newIndex, newUrl) = getPreviousTrack model in
         ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
-        , Cmd.none
+        , scrollToTrack ()
         )
 
     PlayRandom index ->
       let trackUrl = getTrackUrl model index in
         ( { model | selectedIndex = index, selectedUrl = trackUrl }
-        , Cmd.none
+        , scrollToTrack ()
         )
 
     Seek value ->
@@ -127,7 +128,7 @@ update msg model =
 
     SelectTrack index url ->
       ( { model | selectedIndex = index, selectedUrl = url }
-      , Cmd.none
+      , scrollToTrack ()
       )
 
     TimeUpdate value ->
