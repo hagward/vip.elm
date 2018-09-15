@@ -5,29 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>elm-aersia</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="main.js"></script>
 </head>
 <body>
   <div id="elm-root"></div>
-  <script>
-    const app = Elm.Main.init({
-      node: document.getElementById('elm-root')
-    })
-    const audio = document.getElementById('audio')
-    app.ports.scrollToTrack.subscribe(() => {
-      const selected = document.getElementsByClassName('selected')[0]
-      if (selected) {
-        selected.scrollIntoView()
-        window.scrollBy(0, -20)
-      }
-    })
-    app.ports.seek.subscribe(time => audio.currentTime = time)
-    app.ports.playPause.subscribe(play => play ? audio.play().then() : audio.pause())
-    audio.addEventListener('durationchange', event => app.ports.durationChange.send(event.target.duration))
-    audio.addEventListener('ended', event => app.ports.ended.send(true))
-    audio.addEventListener('play', event => app.ports.play.send(true))
-    audio.addEventListener('timeupdate', event => app.ports.timeUpdate.send(event.target.currentTime))
-  </script>
 </body>
 </html>
