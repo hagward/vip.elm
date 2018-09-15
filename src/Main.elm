@@ -339,4 +339,4 @@ getPlaylist =
 
 toVipAersiaUrl : String -> String
 toVipAersiaUrl playlist =
-    Url.crossOrigin "http://vip.aersia.net" [ playlist ] []
+    Url.crossOrigin "https://vip.aersia.net" [ playlist ] []
