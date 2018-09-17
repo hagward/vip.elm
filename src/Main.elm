@@ -221,7 +221,7 @@ findTracks s =
 createTrackRegex : Regex.Regex
 createTrackRegex =
     Maybe.withDefault Regex.never <|
-        Regex.fromString "<creator>(.+?)</creator>\\s+<title>(.+?)</title>\\s+<location>(.+?)</location>"
+        Regex.fromString "<creator>(.+?)</creator>\\s+<title>(.+?)</title>\\s+<location>https?://(.+?)</location>"
 
 
 matchToTrack : Regex.Match -> Track
@@ -229,11 +229,17 @@ matchToTrack match =
     let
         array =
             Array.fromList match.submatches
+
+        creator =
+            Array.get 0 array |> Maybe.withDefault (Just "") |> Maybe.withDefault ""
+
+        title =
+            Array.get 1 array |> Maybe.withDefault (Just "") |> Maybe.withDefault ""
+
+        location =
+            "https://" ++ (Array.get 2 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
     in
-    Track
-        (Array.get 0 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
-        (Array.get 1 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
-        (Array.get 2 array |> Maybe.withDefault (Just "") |> Maybe.withDefault "")
+    Track creator title location
 
 
 
