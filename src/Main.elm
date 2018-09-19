@@ -1,4 +1,4 @@
-port module Main exposing (Model, Msg(..), Track, createTrackRegex, durationChange, ended, findTracks, formattedTime, getNextTrack, getPlaylist, getPreviousTrack, getTrackUrl, init, main, matchToTrack, padWithZero, play, playPause, row, rows, scrollToTrack, seek, subscriptions, timeUpdate, toVipAersiaUrl, update, view, xmlToTracks)
+port module Main exposing (Model, Msg(..), Track, createTrackRegex, findTracks, formattedTime, getNextTrack, getPlaylist, getPreviousTrack, getTrackUrl, init, main, matchToTrack, padWithZero, playPause, row, rows, scrollToTrack, seek, subscriptions, toVipAersiaUrl, update, view, xmlToTracks)
 
 import Array
 import Browser
@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Json.Decode as Decode
 import Random
 import Regex
 import Url.Builder as Url
@@ -58,8 +59,8 @@ init _ =
 
 type Msg
     = DurationChange Float
-    | Ended Bool
-    | Play Bool
+    | Ended
+    | Play
     | PlaylistReceived (Result Http.Error String)
     | PlayNext
     | PlayPause
@@ -68,18 +69,6 @@ type Msg
     | Seek String
     | SelectTrack Int String
     | TimeUpdate Float
-
-
-port durationChange : (Float -> msg) -> Sub msg
-
-
-port ended : (Bool -> msg) -> Sub msg
-
-
-port play : (Bool -> msg) -> Sub msg
-
-
-port timeUpdate : (Float -> msg) -> Sub msg
 
 
 port scrollToTrack : () -> Cmd msg
@@ -99,12 +88,12 @@ update msg model =
             , Cmd.none
             )
 
-        Ended _ ->
+        Ended ->
             ( model
             , Random.generate PlayRandom (Random.int 0 (Array.length model.tracks - 1))
             )
 
-        Play _ ->
+        Play ->
             ( { model | isPlaying = True }
             , Cmd.none
             )
@@ -248,12 +237,7 @@ matchToTrack match =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ durationChange DurationChange
-        , ended Ended
-        , play Play
-        , timeUpdate TimeUpdate
-        ]
+    Sub.none
 
 
 
@@ -268,6 +252,10 @@ view model =
             , controls False
             , autoplay True
             , id "audio"
+            , onDurationChange DurationChange
+            , onEnded Ended
+            , onPlay Play
+            , onTimeUpdate TimeUpdate
             ]
             []
         , div [ class "player-controls" ]
@@ -294,6 +282,26 @@ view model =
             ]
         , ul [] (rows model)
         ]
+
+
+onDurationChange : (Float -> msg) -> Attribute msg
+onDurationChange msg =
+    on "durationchange" <| Decode.map msg <| Decode.at [ "target", "duration" ] Decode.float
+
+
+onEnded : msg -> Attribute msg
+onEnded message =
+    on "ended" (Decode.succeed message)
+
+
+onPlay : msg -> Attribute msg
+onPlay message =
+    on "play" (Decode.succeed message)
+
+
+onTimeUpdate : (Float -> msg) -> Attribute msg
+onTimeUpdate msg =
+    on "timeupdate" <| Decode.map msg <| Decode.at [ "target", "currentTime" ] Decode.float
 
 
 formattedTime : Float -> String
