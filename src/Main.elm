@@ -71,7 +71,7 @@ type Msg
     | TimeUpdate Float
 
 
-port scrollToTrack : () -> Cmd msg
+port scrollToTrack : Int -> Cmd msg
 
 
 port seek : String -> Cmd msg
@@ -120,7 +120,7 @@ update msg model =
                     getNextTrack model
             in
             ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
-            , scrollToTrack ()
+            , scrollToTrack newIndex
             )
 
         PlayPause ->
@@ -134,7 +134,7 @@ update msg model =
                     getPreviousTrack model
             in
             ( { model | selectedIndex = newIndex, selectedUrl = newUrl }
-            , scrollToTrack ()
+            , scrollToTrack newIndex
             )
 
         PlayRandom index ->
@@ -143,7 +143,7 @@ update msg model =
                     getTrackUrl model index
             in
             ( { model | selectedIndex = index, selectedUrl = trackUrl }
-            , scrollToTrack ()
+            , scrollToTrack index
             )
 
         Seek value ->
@@ -153,7 +153,7 @@ update msg model =
 
         SelectTrack index url ->
             ( { model | selectedIndex = index, selectedUrl = url }
-            , scrollToTrack ()
+            , scrollToTrack index
             )
 
         TimeUpdate value ->
@@ -280,7 +280,7 @@ view model =
                 []
             , div [ class "timer" ] [ text (formattedTime model.duration) ]
             ]
-        , ul [] (rows model)
+        , ul [ id "playlist" ] (rows model)
         ]
 
 

@@ -8,10 +8,10 @@ const app = Elm.Main.init({
 
 const audio = document.getElementById('audio');
 
-app.ports.scrollToTrack.subscribe(() => {
-  const selected = document.getElementsByClassName('selected')[0];
-  if (selected) {
-    selected.scrollIntoView();
+app.ports.scrollToTrack.subscribe(index => {
+  const track = document.querySelectorAll('#playlist li')[index];
+  if (track) {
+    track.scrollIntoView();
     window.scrollBy(0, -20);
   }
 });
