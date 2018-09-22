@@ -259,7 +259,7 @@ view model =
             ]
             []
         , div [ class "player-controls" ]
-            [ button [ onClick PlayPause ]
+            [ button [ class "player-control", onClick PlayPause ]
                 [ text
                     (if model.isPlaying then
                         "❚❚"
@@ -268,17 +268,19 @@ view model =
                         "►"
                     )
                 ]
-            , button [ onClick PlayPrevious ] [ text "<" ]
-            , button [ onClick PlayNext ] [ text ">" ]
-            , div [ class "timer" ] [ text (formattedTime model.currentTime) ]
-            , input
-                [ type_ "range"
-                , Html.Attributes.max (String.fromFloat model.duration)
-                , value (String.fromInt (floor model.currentTime))
-                , onInput Seek
+            , button [ class "player-control", onClick PlayPrevious ] [ text "<" ]
+            , button [ class "player-control", onClick PlayNext ] [ text ">" ]
+            , div [ class "player-control seek" ]
+                [ div [ class "timer" ] [ text (formattedTime model.currentTime) ]
+                , input
+                    [ type_ "range"
+                    , Html.Attributes.max (String.fromFloat model.duration)
+                    , value (String.fromInt (floor model.currentTime))
+                    , onInput Seek
+                    ]
+                    []
+                , div [ class "timer" ] [ text (formattedTime model.duration) ]
                 ]
-                []
-            , div [ class "timer" ] [ text (formattedTime model.duration) ]
             ]
         , ul [ id "playlist" ] (rows model)
         ]
