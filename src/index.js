@@ -12,7 +12,6 @@ app.ports.scrollToTrack.subscribe(index => {
   const track = document.querySelectorAll('#playlist li')[index];
   if (track) {
     track.scrollIntoView();
-    window.scrollBy(0, -20);
   }
 });
 app.ports.seek.subscribe(time => audio.currentTime = time);

@@ -246,7 +246,7 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "main" ]
         [ audio
             [ src model.selectedUrl
             , controls False
@@ -282,7 +282,7 @@ view model =
                 , div [ class "timer" ] [ text (formattedTime model.duration) ]
                 ]
             ]
-        , ul [ id "playlist" ] (rows model)
+        , ul [ class "playlist", id "playlist" ] (rows model)
         ]
 
 

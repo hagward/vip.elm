@@ -11,6 +11,10 @@
   --slider-background-color: #635d62;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -35,25 +39,10 @@ button:hover {
   color: var(--text-hover-color);
 }
 
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  border-bottom: 1px solid var(--border-color);
-  cursor: pointer;
-  padding: .4rem;
-}
-li:hover {
-  background-color: var(--hover-color);
-  color: var(--border-color);
-}
-
-.selected {
-  background-color: var(--fg-color);
-  color: var(--bg-color);
+.main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .player-controls {
@@ -61,7 +50,6 @@ li:hover {
   background: linear-gradient(var(--player-controls-light-color), var(--player-controls-dark-color));
   display: flex;
   font-size: .6rem;
-  position: fixed;
   width: 100%;
   padding: 1px;
 }
@@ -81,6 +69,29 @@ li:hover {
 
 .timer {
   padding: 0 6px 0 3px;
+}
+
+.playlist {
+  flex: 1;
+  overflow: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.selected {
+  background-color: var(--fg-color);
+  color: var(--bg-color);
+}
+
+li {
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  padding: .4rem;
+}
+li:hover {
+  background-color: var(--hover-color);
+  color: var(--border-color);
 }
 
 input[type=range] {
