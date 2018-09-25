@@ -247,17 +247,7 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div [ class "main" ]
-        [ audio
-            [ src model.selectedUrl
-            , controls False
-            , autoplay True
-            , id "audio"
-            , onDurationChange DurationChange
-            , onEnded Ended
-            , onPlay Play
-            , onTimeUpdate TimeUpdate
-            ]
-            []
+        [ audioPlayer model.selectedUrl
         , div [ class "player-controls" ]
             [ button [ class "player-control", onClick PlayPause ]
                 [ text
@@ -284,6 +274,25 @@ view model =
             ]
         , ul [ class "playlist", id "playlist" ] (rows model)
         ]
+
+
+audioPlayer : String -> Html Msg
+audioPlayer url =
+    if String.length url > 0 then
+        audio
+            [ src url
+            , autoplay True
+            , controls False
+            , id "audio"
+            , onDurationChange DurationChange
+            , onEnded Ended
+            , onPlay Play
+            , onTimeUpdate TimeUpdate
+            ]
+            []
+
+    else
+        Html.text ""
 
 
 onDurationChange : (Float -> msg) -> Attribute msg
