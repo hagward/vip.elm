@@ -90,7 +90,7 @@ update msg model =
 
         Ended ->
             ( model
-            , Random.generate PlayRandom (Random.int 0 (Array.length model.tracks - 1))
+            , playRandomTrack model
             )
 
         Play ->
@@ -104,9 +104,12 @@ update msg model =
                     let
                         tracks =
                             xmlToTracks xml
+
+                        newModel =
+                            { model | tracks = tracks }
                     in
-                    ( { model | tracks = tracks }
-                    , Cmd.none
+                    ( newModel
+                    , playRandomTrack newModel
                     )
 
                 Err _ ->
@@ -160,6 +163,11 @@ update msg model =
             ( { model | currentTime = value }
             , Cmd.none
             )
+
+
+playRandomTrack : Model -> Cmd Msg
+playRandomTrack model =
+    Random.generate PlayRandom (Random.int 0 (Array.length model.tracks - 1))
 
 
 getNextTrack : Model -> ( Int, String )
