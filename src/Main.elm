@@ -255,40 +255,17 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div [ class "main" ]
-        [ audioPlayer model.selectedUrl
-        , div [ class "player-controls" ]
-            [ button [ class "player-control", onClick PlayPause ]
-                [ text
-                    (if model.isPlaying then
-                        "❚❚"
-
-                     else
-                        "►"
-                    )
-                ]
-            , button [ class "player-control", onClick PlayPrevious ] [ text "<" ]
-            , button [ class "player-control", onClick PlayNext ] [ text ">" ]
-            , div [ class "player-control seek" ]
-                [ div [ class "timer" ] [ text (formattedTime model.currentTime) ]
-                , input
-                    [ type_ "range"
-                    , Html.Attributes.max (String.fromFloat model.duration)
-                    , value (String.fromInt (floor model.currentTime))
-                    , onInput Seek
-                    ]
-                    []
-                , div [ class "timer" ] [ text (formattedTime model.duration) ]
-                ]
-            ]
-        , ul [ class "playlist", id "playlist" ] (rows model)
+        [ audioPlayer model
+        , playerControls model
+        , playlist model
         ]
 
 
-audioPlayer : String -> Html Msg
-audioPlayer url =
-    if String.length url > 0 then
+audioPlayer : Model -> Html Msg
+audioPlayer model =
+    if String.length model.selectedUrl > 0 then
         audio
-            [ src url
+            [ src model.selectedUrl
             , autoplay True
             , controls False
             , id "audio"
@@ -301,6 +278,39 @@ audioPlayer url =
 
     else
         Html.text ""
+
+
+playerControls : Model -> Html Msg
+playerControls model =
+    div [ class "player-controls" ]
+        [ button [ class "player-control", onClick PlayPause ]
+            [ text
+                (if model.isPlaying then
+                    "❚❚"
+
+                 else
+                    "►"
+                )
+            ]
+        , button [ class "player-control", onClick PlayPrevious ] [ text "<" ]
+        , button [ class "player-control", onClick PlayNext ] [ text ">" ]
+        , div [ class "player-control seek" ]
+            [ div [ class "timer" ] [ text (formattedTime model.currentTime) ]
+            , input
+                [ type_ "range"
+                , Html.Attributes.max (String.fromFloat model.duration)
+                , value (String.fromInt (floor model.currentTime))
+                , onInput Seek
+                ]
+                []
+            , div [ class "timer" ] [ text (formattedTime model.duration) ]
+            ]
+        ]
+
+
+playlist : Model -> Html Msg
+playlist model =
+    ul [ class "playlist", id "playlist" ] (rows model)
 
 
 onDurationChange : (Float -> msg) -> Attribute msg
@@ -371,5 +381,5 @@ getPlaylist =
 
 
 toVipAersiaUrl : String -> String
-toVipAersiaUrl playlist =
-    Url.crossOrigin "https://vip.aersia.net" [ playlist ] []
+toVipAersiaUrl playlistFilename =
+    Url.crossOrigin "https://vip.aersia.net" [ playlistFilename ] []
