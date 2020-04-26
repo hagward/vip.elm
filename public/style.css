@@ -75,8 +75,12 @@ button:hover {
   flex: 1;
 }
 
-.timer {
+.timer:first-child {
   padding: 0 6px 0 3px;
+}
+
+.timer:last-child {
+  padding: 0 3px 0 6px;
 }
 
 .playlist {
