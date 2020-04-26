@@ -2,3 +2,4 @@ build
 elm-stuff
 public/main.js
 public/roster*
+.DS_Store
