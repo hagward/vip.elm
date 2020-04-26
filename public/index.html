@@ -1,12 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>vip.elm</title>
-</head>
-<body>
-  <div id="elm-root"></div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>vip.elm</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="main.js"></script>
+  </head>
+  <body>
+    <div id="elm-root"></div>
+    <script>
+      const app = Elm.Main.init({
+        node: document.getElementById("elm-root"),
+      });
+
+      const audio = () => document.getElementById("audio");
+
+      app.ports.scrollToTrack.subscribe((index) => {
+        const track = document.querySelectorAll("#playlist li")[index];
+        if (track) {
+          track.scrollIntoView();
+        }
+      });
+      app.ports.seek.subscribe((time) => (audio().currentTime = time));
+      app.ports.playPause.subscribe((play) =>
+        play ? audio().play().then() : audio().pause()
+      );
+    </script>
+  </body>
 </html>

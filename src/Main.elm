@@ -16,6 +16,7 @@ import Url.Builder as Url
 -- MAIN
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -244,7 +245,7 @@ matchToTrack match =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -377,7 +378,11 @@ row ( i, track, selectedIndex ) =
 
 getPlaylist : Cmd Msg
 getPlaylist =
-    Http.send PlaylistReceived (Http.getString (toVipAersiaUrl "roster.xml"))
+    Http.get
+    { url = toVipAersiaUrl "roster.xml"
+    , expect = Http.expectString PlaylistReceived
+    }
+
 
 
 toVipAersiaUrl : String -> String
